@@ -9,14 +9,14 @@ import java.time.format.DateTimeFormatter;
 public class Post {
     private final User author;
     private final String message;
-    private final Instant messageTime;
+    private final Instant createdMessageTime;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm")
             .withZone(ZoneId.of("Europe/Minsk"));
 
-    public Post(User author, String message, Instant messageTime) {
+    public Post(User author, String message, Instant createdMessageTime) {
         this.author = author;
         this.message = message;
-        this.messageTime = messageTime;
+        this.createdMessageTime = createdMessageTime;
     }
 
     public User getAuthor() {
@@ -24,7 +24,7 @@ public class Post {
     }
 
     public Instant getMessageTime() {
-        return messageTime;
+        return createdMessageTime;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class Post {
         return "Post{" +
                 "author= " + author +
                 ", message= '" + message + '\'' +
-                ", messageTime= " + formatter.format(messageTime) +
+                ", messageTime= " + formatter.format(createdMessageTime) +
                 '}';
     }
 }

@@ -1,9 +1,7 @@
-import by.tms.lesson17.homework.Post;
 import by.tms.lesson17.homework.PostService;
 import by.tms.lesson17.homework.User;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -44,7 +42,7 @@ public class Homework17Test {
                         User user = new User(scanner.nextLine());
                         System.out.print("Enter message: ");
                         String message = scanner.nextLine();
-                        if (ps.addNewPost(new Post(user, message, Instant.now()))) {
+                        if (ps.addNewPost(user, message)) {
                             System.out.println("Post added");
                         } else {
                             System.out.println("To many requests!");

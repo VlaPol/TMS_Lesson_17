@@ -6,47 +6,50 @@ import java.util.Arrays;
 
 public class PostService {
 
-    private final int limitPosts;
-    private final Duration duration;
-    private static Post[] postHistory;
+    private final int limitPostsFromOneUserPerDuration;
+    private final Duration postDelayDuration;
+    private Post[] postHistory;
 
-    public PostService(int limitPosts, Duration duration) {
-        this.duration = duration;
-        this.limitPosts = limitPosts;
+    public PostService(int limitPostsFromOneUserPerDuration, Duration postDelayDuration) {
+        this.postDelayDuration = postDelayDuration;
+        this.limitPostsFromOneUserPerDuration = limitPostsFromOneUserPerDuration;
         postHistory = new Post[0];
     }
 
-    public boolean addNewPost(Post newPost) {
+    public boolean addNewPost(User user, String message) {
+
+        Instant messageTime = getCurrentTime();
 
         int messageCounter = 0;
 
-        for (Post itm : postHistory) {
-            if (itm.getMessageTime().isBefore(Instant.now().minus(duration))
-                    && (itm.getAuthor().equals(newPost.getAuthor()))) {
-                messageCounter = 0;
-            }
-        }
+        for (int i = postHistory.length - 1; i > 0; i--) {
 
-        if (postHistory.length == 0) {
-            saveNewPost(newPost);
-            messageCounter++;
-        } else {
+            if (postHistory[i].getMessageTime().isAfter(messageTime.minus(postDelayDuration))
+                    && (postHistory[i].getAuthor().getNickName().equals(user.getNickName()))) {
 
-            for (Post itm : postHistory) {
+                messageCounter++;
 
-                if (itm.getMessageTime().isAfter(Instant.now().minus(duration))
-                        && (itm.getAuthor().equals(newPost.getAuthor()))) {
-                    messageCounter++;
+                if (messageCounter == limitPostsFromOneUserPerDuration - 1) {
+                    return false;
                 }
             }
-            if (messageCounter < limitPosts) {
-                saveNewPost(newPost);
-                messageCounter++;
-            } else {
-                return false;
-            }
         }
+
+        if (messageCounter < limitPostsFromOneUserPerDuration) {
+            saveNewPost(new Post(user, message, messageTime));
+        } else {
+            return false;
+        }
+
         return true;
+    }
+
+    public Post[] getAllPosts() {
+        return postHistory;
+    }
+
+    private Instant getCurrentTime() {
+        return Instant.now();
     }
 
     private void saveNewPost(Post newPost) {
@@ -54,8 +57,5 @@ public class PostService {
         postHistory[postHistory.length - 1] = newPost;
     }
 
-    public Post[] getAllPosts() {
-        return postHistory;
-    }
 
 }
