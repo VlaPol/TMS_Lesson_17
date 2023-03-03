@@ -21,10 +21,11 @@ public class PostService {
         Instant messageTime = getCurrentTime();
 
         int messageCounter = 0;
+        Instant deltaTime = messageTime.minus(postDelayDuration);
 
         for (int i = postHistory.length - 1; i > 0; i--) {
 
-            if (postHistory[i].getMessageTime().isAfter(messageTime.minus(postDelayDuration))
+            if (postHistory[i].getMessageTime().isAfter(deltaTime)
                     && (postHistory[i].getAuthor().getNickName().equals(user.getNickName()))) {
 
                 messageCounter++;
@@ -32,20 +33,18 @@ public class PostService {
                 if (messageCounter == limitPostsFromOneUserPerDuration - 1) {
                     return false;
                 }
+                if(postHistory[i].getMessageTime().isBefore(deltaTime)){
+                    break;
+                }
             }
         }
 
-        if (messageCounter < limitPostsFromOneUserPerDuration) {
-            saveNewPost(new Post(user, message, messageTime));
-        } else {
-            return false;
-        }
-
+        saveNewPost(new Post(user, message, messageTime));
         return true;
     }
 
     public Post[] getAllPosts() {
-        return postHistory;
+        return Arrays.copyOf(postHistory, postHistory.length);
     }
 
     private Instant getCurrentTime() {
