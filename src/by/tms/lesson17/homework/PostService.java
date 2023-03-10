@@ -25,6 +25,10 @@ public class PostService {
 
         for (int i = postHistory.length - 1; i > 0; i--) {
 
+            if (postHistory[i].getMessageTime().isBefore(deltaTime)) {
+                break;
+            }
+
             if (postHistory[i].getMessageTime().isAfter(deltaTime)
                     && (postHistory[i].getAuthor().getNickName().equals(user.getNickName()))) {
 
@@ -33,10 +37,8 @@ public class PostService {
                 if (messageCounter == limitPostsFromOneUserPerDuration - 1) {
                     return false;
                 }
-                if(postHistory[i].getMessageTime().isBefore(deltaTime)){
-                    break;
-                }
             }
+
         }
 
         saveNewPost(new Post(user, message, messageTime));
