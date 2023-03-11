@@ -1,7 +1,9 @@
 import by.tms.lesson17.homework.PostService;
 import by.tms.lesson17.homework.User;
+import by.tms.lesson17.homework.exceptions.ExceededTimeLimitException;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -42,12 +44,14 @@ public class Homework17Test {
                         User user = new User(scanner.nextLine());
                         System.out.print("Enter message: ");
                         String message = scanner.nextLine();
-                        if (ps.addNewPost(user, message)) {
+                        try {
+                            ps.addNewPost(user, message);
                             System.out.println("Post added");
-                        } else {
-                            System.out.println("To many requests!");
+                        } catch (ExceededTimeLimitException e) {
+                            System.out.println("To many requests! Try attempt after: "
+                                    + Duration.between(Instant.now(), e.getLeftTimeToPost()).getSeconds() + " seconds");
                         }
-                        if (counter++ == 10) break;
+                        if (counter++ == 20) break;
                     } while (true);
                 }
                 case 2 -> {
