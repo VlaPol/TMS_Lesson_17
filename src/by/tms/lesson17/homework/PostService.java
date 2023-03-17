@@ -36,8 +36,7 @@ public class PostService {
 
                 messageCounter++;
 
-                if (messageCounter == limitPostsFromOneUserPerDuration - 1
-                        || messageTime.isAfter(postHistory[i].getMessageTime().plus(postDelayDuration))) {
+                if (messageCounter == limitPostsFromOneUserPerDuration - 1){
                     throw new ExceededTimeLimitException(postHistory[i].getMessageTime().plus(postDelayDuration));
                 }
             }
