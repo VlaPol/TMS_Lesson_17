@@ -4,18 +4,19 @@ import by.tms.lesson17.homework.exceptions.ExceededTimeLimitException;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostService {
 
     private final int limitPostsFromOneUserPerDuration;
     private final Duration postDelayDuration;
-    private Post[] postHistory;
+    private final List<Post> postHistory;
 
     public PostService(int limitPostsFromOneUserPerDuration, Duration postDelayDuration) {
         this.postDelayDuration = postDelayDuration;
         this.limitPostsFromOneUserPerDuration = limitPostsFromOneUserPerDuration;
-        postHistory = new Post[0];
+        postHistory = new ArrayList<>();
     }
 
     public void addNewPost(User user, String message) throws ExceededTimeLimitException {
@@ -25,19 +26,19 @@ public class PostService {
         int messageCounter = 0;
         Instant deltaTime = messageTime.minus(postDelayDuration);
 
-        for (int i = postHistory.length - 1; i > 0; i--) {
+        for (int i = postHistory.size() - 1; i > 0; i--) {
 
-            if (postHistory[i].getMessageTime().isBefore(deltaTime)) {
+            if (postHistory.get(i).getMessageTime().isBefore(deltaTime)) {
                 break;
             }
 
-            if (postHistory[i].getMessageTime().isAfter(deltaTime)
-                    && (postHistory[i].getAuthor().getNickName().equals(user.getNickName()))) {
+            if (postHistory.get(i).getMessageTime().isAfter(deltaTime)
+                    && (postHistory.get(i).getAuthor().getNickName().equals(user.getNickName()))) {
 
                 messageCounter++;
 
-                if (messageCounter == limitPostsFromOneUserPerDuration - 1){
-                    throw new ExceededTimeLimitException(postHistory[i].getMessageTime().plus(postDelayDuration));
+                if (messageCounter == limitPostsFromOneUserPerDuration - 1) {
+                    throw new ExceededTimeLimitException(postHistory.get(i).getMessageTime().plus(postDelayDuration));
                 }
             }
 
@@ -46,8 +47,8 @@ public class PostService {
         saveNewPost(new Post(user, message, messageTime));
     }
 
-    public Post[] getAllPosts() {
-        return Arrays.copyOf(postHistory, postHistory.length);
+    public List<Post> getAllPosts() {
+        return java.util.Collections.unmodifiableList(postHistory);
     }
 
     private Instant getCurrentTime() {
@@ -55,9 +56,7 @@ public class PostService {
     }
 
     private void saveNewPost(Post newPost) {
-        postHistory = Arrays.copyOf(postHistory, postHistory.length + 1);
-        postHistory[postHistory.length - 1] = newPost;
+        postHistory.add(newPost);
     }
-
 
 }
