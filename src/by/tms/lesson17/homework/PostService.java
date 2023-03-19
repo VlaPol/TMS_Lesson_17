@@ -6,6 +6,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
+
+import static java.util.Collections.unmodifiableList;
 
 public class PostService {
 
@@ -26,19 +29,20 @@ public class PostService {
         int messageCounter = 0;
         Instant deltaTime = messageTime.minus(postDelayDuration);
 
-        for (int i = postHistory.size() - 1; i > 0; i--) {
+        ListIterator<Post> postListIterator = postHistory.listIterator(postHistory.size());
+        while (postListIterator.hasPrevious()) {
 
-            if (postHistory.get(i).getMessageTime().isBefore(deltaTime)) {
+            Post tmpPost = postListIterator.previous();
+            if (tmpPost.getMessageTime().isBefore(deltaTime)) {
                 break;
             }
 
-            if (postHistory.get(i).getMessageTime().isAfter(deltaTime)
-                    && (postHistory.get(i).getAuthor().getNickName().equals(user.getNickName()))) {
-
+            if (tmpPost.getMessageTime().isAfter(deltaTime)
+                    && tmpPost.getAuthor().equals(user)) {
                 messageCounter++;
 
                 if (messageCounter == limitPostsFromOneUserPerDuration - 1) {
-                    throw new ExceededTimeLimitException(postHistory.get(i).getMessageTime().plus(postDelayDuration));
+                    throw new ExceededTimeLimitException(tmpPost.getMessageTime().plus(postDelayDuration));
                 }
             }
 
@@ -48,7 +52,7 @@ public class PostService {
     }
 
     public List<Post> getAllPosts() {
-        return java.util.Collections.unmodifiableList(postHistory);
+        return unmodifiableList(postHistory);
     }
 
     private Instant getCurrentTime() {
